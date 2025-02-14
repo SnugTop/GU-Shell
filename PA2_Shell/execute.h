@@ -7,7 +7,11 @@
 #ifndef EXECUTE_H
 #define EXECUTE_H
 
-// Function to execute a user command
+#define MAX_PATHS 10  // Define MAX_PATHS globally
+
+extern char *search_paths[MAX_PATHS]; // Declare search_paths globally
+
 void execute_command(char *cmd);
+char *find_executable(char *cmd);
 
 #endif

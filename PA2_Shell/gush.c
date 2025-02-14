@@ -1,54 +1,48 @@
 /*
  * gush.c - Main shell logic
- * 
- * This file contains the main function that initializes the shell.
- * It supports both interactive mode (where the user types commands) and
- * batch mode (where commands are read from a file). 
- * The main function determines which mode to run and processes user commands.
+ * Handles interactive mode (with prompt) and batch mode (reading from a file).
  */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "execute.h"
+#include "builtins.h"
 #include "utils.h"
 
 #define MAX_INPUT_SIZE 1024  // Maximum command length
 
 /*
- * interactive_mode - Runs the shell in interactive mode
- * This function continuously prompts the user for input, reads the command,
- * and sends it for execution.
+ * interactive_mode - Runs the shell in interactive mode.
  */
 void interactive_mode() {
     char input[MAX_INPUT_SIZE];
 
     while (1) {
-        printf("gush> "); // Print shell prompt
+        printf("gush> ");
         fflush(stdout);
         
         if (fgets(input, MAX_INPUT_SIZE, stdin) == NULL) {
             exit(0); // Exit on EOF (Ctrl+D)
         }
 
-        execute_command(input); // Process the input command
+        execute_command(input);
     }
 }
 
 /*
- * batch_mode - Runs the shell in batch mode
- * This function reads commands from a given file and executes them.
+ * batch_mode - Runs the shell in batch mode.
  */
 void batch_mode(char *filename) {
     FILE *file = fopen(filename, "r");
     if (!file) {
-        print_error();  // Print error if file cannot be opened
+        print_error();
         exit(1);
     }
 
     char input[MAX_INPUT_SIZE];
     while (fgets(input, MAX_INPUT_SIZE, file)) {
-        execute_command(input); // Execute each command from the file
+        execute_command(input);
     }
     
     fclose(file);
@@ -56,17 +50,16 @@ void batch_mode(char *filename) {
 }
 
 /*
- * main - Entry point of the shell
- * Determines whether the shell runs in interactive or batch mode.
+ * main - Entry point of the shell.
  */
 int main(int argc, char *argv[]) {
     if (argc > 2) {
-        print_error(); // Too many arguments (invalid usage)
+        print_error();
         exit(1);
     }
 
     if (argc == 2) {
-        batch_mode(argv[1]); // Run batch mode with input file
+        batch_mode(argv[1]); // Run batch mode
     } else {
         interactive_mode(); // Run interactive mode
     }
