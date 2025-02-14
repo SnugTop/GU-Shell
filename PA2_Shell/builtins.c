@@ -48,11 +48,32 @@ void builtin_pwd() {
 }
 
 /*
- * builtin_history - Prints the command history
+ * builtin_history - Prints the last 10 commands entered
  */
 void builtin_history(char **args) {
+    if (args[1] != NULL) {
+        print_error();  // `history` takes no arguments
+        return;
+    }
+
     for (int i = 0; i < history_count; i++) {
-        printf("%d %s", i + 1, history[i]);
+        printf("%d %s", i + 1, history[i]);  // Print history
+    }
+}
+
+/*
+ * add_to_history - Stores command into history (FIFO order)
+ */
+void add_to_history(char *cmd) {
+    if (history_count < MAX_HISTORY) {
+        strcpy(history[history_count], cmd);
+        history_count++;
+    } else {
+        // Shift history up (FIFO) when max size reached
+        for (int i = 1; i < MAX_HISTORY; i++) {
+            strcpy(history[i - 1], history[i]);
+        }
+        strcpy(history[MAX_HISTORY - 1], cmd);
     }
 }
 
@@ -61,12 +82,24 @@ void builtin_history(char **args) {
  */
 void builtin_kill(char **args) {
     if (args[1] == NULL || args[2] != NULL) {
-        print_error();
+        print_error(); // Kill requires exactly one argument (PID)
         return;
     }
-    int pid = atoi(args[1]);
-    if (pid <= 0 || kill(pid, SIGTERM) != 0) {
+
+    // Convert argument to an integer (PID)
+    char *endptr;
+    int pid = strtol(args[1], &endptr, 10);
+
+    if (*endptr != '\0' || pid <= 0) {
+        print_error();  // Invalid PID
+        return;
+    }
+
+    // Try to send SIGTERM signal
+    if (kill(pid, SIGTERM) != 0) {
         print_error();
+    } else {
+        printf("Process %d terminated\n", pid);
     }
 }
 

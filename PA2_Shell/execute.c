@@ -23,24 +23,32 @@ char *search_paths[MAX_PATHS] = {"/bin", NULL}; // Default search path
 char *find_executable(char *cmd) {
     static char full_path[1024];
 
+    // If the command already has an absolute or relative path, use it directly
     if (cmd[0] == '/' || cmd[0] == '.') {
         return cmd;
     }
 
+    // If path is empty, return NULL (no external commands should execute)
+    if (search_paths[0] == NULL) {
+        return NULL;
+    }
+
+    // Search through the defined `path`
     for (int i = 0; search_paths[i] != NULL; i++) {
         snprintf(full_path, sizeof(full_path), "%s/%s", search_paths[i], cmd);
-        if (access(full_path, X_OK) == 0) {
+        if (access(full_path, X_OK) == 0) {  // Check if file is executable
             return full_path;
         }
     }
 
-    return NULL;
+    return NULL; // Command not found in `path`
 }
 
 /*
  * execute_command - Runs a command by checking built-ins first, then execve().
  */
 void execute_command(char *cmd) {
+    add_to_history(cmd);  // Add command to history
     char *args[MAX_ARG_SIZE];
     char *token = strtok(cmd, " \t\n");
 

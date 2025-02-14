@@ -23,5 +23,6 @@ void builtin_pwd();
 void builtin_history(char **args);
 void builtin_kill(char **args);
 void builtin_path(char **args);
+void add_to_history(char *cmd);
 
 #endif
