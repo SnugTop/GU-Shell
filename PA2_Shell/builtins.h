@@ -9,6 +9,7 @@
  * - history
  * - kill
  * - path
+ * - clear
  */
 
 #ifndef BUILTINS_H
@@ -20,6 +21,7 @@
 void builtin_exit(char **args);
 void builtin_cd(char **args);
 void builtin_pwd();
+void builtin_clear();
 void builtin_history(char **args);
 void builtin_kill(char **args);
 void builtin_path(char **args);

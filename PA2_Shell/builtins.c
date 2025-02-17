@@ -22,6 +22,13 @@ void builtin_exit(char **args) {
     }
 }
 
+/*builtin_clear - Clears the terminal for a cleaner workspace
+*/
+
+void builtin_clear(){
+    system("clear");
+}
+
 /*
  * builtin_cd - Changes directory without using execve()
  */

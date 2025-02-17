@@ -86,6 +86,10 @@ void execute_command(char *cmd) {
         builtin_path(args);
         return;
     }
+    if (strcmp(args[0], "clear") == 0) {  
+        builtin_clear();  
+        return;
+    }
 
     // If it's not a built-in, manually search for the command
     char *full_path = find_executable(args[0]);
