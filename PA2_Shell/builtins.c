@@ -71,16 +71,27 @@ void builtin_history(char **args) {
 /*
  * add_to_history - Stores command into history (FIFO order)
  */
-void add_to_history(char *cmd) {
+ void add_to_history(char *cmd) {
+    // Remove trailing newline if present
+    size_t len = strlen(cmd);
+    if (len > 0 && cmd[len - 1] == '\n') {
+        cmd[len - 1] = '\0';
+    }
+
+    // Ignore "history" command to prevent it from being stored
+    if (strcmp(cmd, "history") == 0) {
+        return;
+    }
+ // Store the command, ensuring it's followed by a newline
     if (history_count < MAX_HISTORY) {
-        strcpy(history[history_count], cmd);
+        snprintf(history[history_count], sizeof(history[history_count]), "%s\n", cmd);
         history_count++;
     } else {
         // Shift history up (FIFO) when max size reached
         for (int i = 1; i < MAX_HISTORY; i++) {
             strcpy(history[i - 1], history[i]);
         }
-        strcpy(history[MAX_HISTORY - 1], cmd);
+        snprintf(history[MAX_HISTORY - 1], sizeof(history[MAX_HISTORY - 1]), "%s\n", cmd);
     }
 }
 

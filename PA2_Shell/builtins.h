@@ -14,8 +14,13 @@
 
 #ifndef BUILTINS_H
 #define BUILTINS_H
+#define MAX_HISTORY 10
+
 
 #include "execute.h"  // Needed for MAX_PATHS and search_paths
+
+extern char history[MAX_HISTORY][1024];  // Store command history
+extern int history_count;
 
 // Function prototypes for built-in commands
 void builtin_exit(char **args);
