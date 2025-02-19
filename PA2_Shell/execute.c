@@ -47,8 +47,23 @@ char *find_executable(char *cmd) {
 /*
  * execute_command - Runs a command by checking built-ins first, then execve().
  */
-void execute_command(char *cmd) {
-    add_to_history(cmd);  // Add command to history
+ void execute_command(char *cmd) {
+    // Handle `!n` history execution
+    if (cmd[0] == '!' && cmd[1] != '\0') {
+        int index = atoi(cmd + 1);  // Convert `!n` to integer
+
+        if (index <= 0 || index > history_count) {
+            print_error();  // Invalid history index
+            return;
+        }
+
+        // Retrieve the corresponding command
+        strcpy(cmd, history[index - 1]);  // `index - 1` since history is 0-based
+        printf("%s\n", cmd);  // Show what is being executed
+    }
+
+    add_to_history(cmd);  // Add new command to history
+
     char *args[MAX_ARG_SIZE];
     char *token = strtok(cmd, " \t\n");
 
