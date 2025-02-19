@@ -71,7 +71,7 @@ int handle_redirection(char **args) {
             print_error();
             return -1;
         }
-        if (dup2(fd_in, STDIN_FILENO) < 0) {
+        if (dup2(fd_in, STDIN_FILENO) < 0) { // Redirect stdin to the file
             print_error();
             close(fd_in);
             return -1;
