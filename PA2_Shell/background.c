@@ -47,6 +47,6 @@ void cleanup_background_process(pid_t pid) {
         prev = curr;
         curr = curr->next;
     }
-}
+}                                                                
 
-~                                                                                                                                                                                                                                                                                                                                                                        51,0-1        All
+
