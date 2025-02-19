@@ -1,6 +1,7 @@
 /*
  * execute.c - Command execution logic
- * Checks if a command is built-in; otherwise, runs it using execve().
+ * Checks if a command is built-in; if not, it handles pipes or redirection,
+ * and finally executes external commands using execve().
  */
 
 #include <stdio.h>
@@ -11,6 +12,8 @@
 #include <sys/wait.h>
 #include "builtins.h"
 #include "utils.h"
+#include "redirection.h"
+#include "pipes.h"
 
 #define MAX_ARG_SIZE 64
 #define MAX_PATHS 10
@@ -33,7 +36,7 @@ char *find_executable(char *cmd) {
         return NULL;
     }
 
-    // Search through the defined `path`
+    // Search through the defined search_paths
     for (int i = 0; search_paths[i] != NULL; i++) {
         snprintf(full_path, sizeof(full_path), "%s/%s", search_paths[i], cmd);
         if (access(full_path, X_OK) == 0) {  // Check if file is executable
@@ -41,33 +44,42 @@ char *find_executable(char *cmd) {
         }
     }
 
-    return NULL; // Command not found in `path`
+    return NULL; // Command not found in search_paths
 }
 
 /*
- * execute_command - Runs a command by checking built-ins first, then execve().
+ * execute_command - Processes and executes a command.
+ * It checks for pipes, handles history recall, stores the command in history,
+ * processes redirection, checks for built-in commands, and finally executes external commands.
  */
- void execute_command(char *cmd) {
-    // Handle `!n` history execution
-    if (cmd[0] == '!' && cmd[1] != '\0') {
-        int index = atoi(cmd + 1);  // Convert `!n` to integer
+void execute_command(char *cmd) {
+    // If the command contains a pipe, use the pipes module to execute it.
+    if (strchr(cmd, '|') != NULL) {
+        if (execute_piped_commands(cmd) < 0) {
+            print_error();
+        }
+        return;
+    }
 
+    // Handle history recall: if the command begins with '!' then execute that history command.
+    if (cmd[0] == '!' && cmd[1] != '\0') {
+        int index = atoi(cmd + 1);  // Convert "!n" to integer index
         if (index <= 0 || index > history_count) {
             print_error();  // Invalid history index
             return;
         }
-
-        // Retrieve the corresponding command
-        strcpy(cmd, history[index - 1]);  // `index - 1` since history is 0-based
-        printf("%s\n", cmd);  // Show what is being executed
+        strcpy(cmd, history[index - 1]);  // history is 0-based
+        printf("%s\n", cmd);  // Display the command being executed
     }
 
-    add_to_history(cmd);  // Add new command to history
+    // Add the command to the history (note: add_to_history() is declared in builtins.h)
+    add_to_history(cmd);
 
+    // Parse the command into an array of arguments.
     char *args[MAX_ARG_SIZE];
     char *token = strtok(cmd, " \t\n");
-
-    if (token == NULL) return;
+    if (token == NULL)
+        return;
 
     int i = 0;
     while (token != NULL && i < MAX_ARG_SIZE - 1) {
@@ -76,7 +88,13 @@ char *find_executable(char *cmd) {
     }
     args[i] = NULL;
 
-    // Check for built-in commands FIRST before calling execve()
+    // Handle redirection operators (< and >). This function modifies the args array,
+    // sets up the appropriate file descriptors, and returns -1 if an error occurs.
+    if (handle_redirection(args) < 0) {
+        return;
+    }
+
+    // Check for built-in commands BEFORE trying to execute external commands.
     if (strcmp(args[0], "exit") == 0) {
         builtin_exit(args);
         return;
@@ -101,12 +119,12 @@ char *find_executable(char *cmd) {
         builtin_path(args);
         return;
     }
-    if (strcmp(args[0], "clear") == 0) {  
-        builtin_clear();  
+    if (strcmp(args[0], "clear") == 0) {
+        builtin_clear();
         return;
     }
 
-    // If it's not a built-in, manually search for the command
+    // Not a built-in command, so search for the executable.
     char *full_path = find_executable(args[0]);
     if (full_path == NULL) {
         print_error();
@@ -117,10 +135,12 @@ char *find_executable(char *cmd) {
     if (pid < 0) {
         print_error();
     } else if (pid == 0) {
-        execve(full_path, args, NULL);  // Run external command
+        // Child process: execute the external command.
+        execve(full_path, args, NULL);
         print_error();
         exit(1);
     } else {
+        // Parent process: wait for the child to complete.
         waitpid(pid, NULL, 0);
     }
     printf("Executing command: %s\n", full_path);

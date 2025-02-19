@@ -1,3 +1,4 @@
+//gush.c
 /*
  * gush.c - Main shell logic
  * Handles interactive mode (with prompt) and batch mode (reading from a file).

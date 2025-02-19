@@ -8,6 +8,7 @@
 #define EXECUTE_H
 
 #define MAX_PATHS 10  // Define MAX_PATHS globally
+#define MAX_ARG_SIZE 64  // Define MAX_ARG_SIZE globally
 
 extern char *search_paths[MAX_PATHS]; // Declare search_paths globally
 
