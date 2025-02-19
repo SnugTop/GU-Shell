@@ -18,7 +18,7 @@
 #define MAX_ARG_SIZE 64
 #define MAX_PATHS 10
 
-char *search_paths[MAX_PATHS] = {"/bin", NULL}; // Default search path
+char *search_paths[MAX_PATHS] = {"/bin", "/usr/bin", NULL}; // Default search path
 
 /*
  * find_executable - Resolves a command to its full path by checking search paths.
@@ -50,10 +50,11 @@ char *find_executable(char *cmd) {
 /*
  * execute_command - Processes and executes a command.
  * It checks for pipes, handles history recall, stores the command in history,
- * processes redirection, checks for built-in commands, and finally executes external commands.
+ * and then forks. In the child process, it processes redirection and executes
+ * external commands using execve(). Built-in commands are handled in the parent.
  */
 void execute_command(char *cmd) {
-    // If the command contains a pipe, use the pipes module to execute it.
+    // If the command contains a pipe, handle it via the pipes module.
     if (strchr(cmd, '|') != NULL) {
         if (execute_piped_commands(cmd) < 0) {
             print_error();
@@ -61,7 +62,7 @@ void execute_command(char *cmd) {
         return;
     }
 
-    // Handle history recall: if the command begins with '!' then execute that history command.
+    // Handle history recall if command starts with '!'
     if (cmd[0] == '!' && cmd[1] != '\0') {
         int index = atoi(cmd + 1);  // Convert "!n" to integer index
         if (index <= 0 || index > history_count) {
@@ -72,10 +73,10 @@ void execute_command(char *cmd) {
         printf("%s\n", cmd);  // Display the command being executed
     }
 
-    // Add the command to the history (note: add_to_history() is declared in builtins.h)
+    // Add the command to the history.
     add_to_history(cmd);
 
-    // Parse the command into an array of arguments.
+    // Parse the command into arguments.
     char *args[MAX_ARG_SIZE];
     char *token = strtok(cmd, " \t\n");
     if (token == NULL)
@@ -88,13 +89,7 @@ void execute_command(char *cmd) {
     }
     args[i] = NULL;
 
-    // Handle redirection operators (< and >). This function modifies the args array,
-    // sets up the appropriate file descriptors, and returns -1 if an error occurs.
-    if (handle_redirection(args) < 0) {
-        return;
-    }
-
-    // Check for built-in commands BEFORE trying to execute external commands.
+    // Check for built-in commands BEFORE forking.
     if (strcmp(args[0], "exit") == 0) {
         builtin_exit(args);
         return;
@@ -124,23 +119,28 @@ void execute_command(char *cmd) {
         return;
     }
 
-    // Not a built-in command, so search for the executable.
+    // Locate the executable for the command.
     char *full_path = find_executable(args[0]);
     if (full_path == NULL) {
         print_error();
         return;
     }
 
+    // Fork a new process to execute the command.
     pid_t pid = fork();
     if (pid < 0) {
         print_error();
     } else if (pid == 0) {
-        // Child process: execute the external command.
+        // In the child process, handle redirection.
+        if (handle_redirection(args) < 0) {
+            exit(1);
+        }
+        // Execute the external command.
         execve(full_path, args, NULL);
         print_error();
         exit(1);
     } else {
-        // Parent process: wait for the child to complete.
+        // In the parent process, wait for the child process to complete.
         waitpid(pid, NULL, 0);
     }
     printf("Executing command: %s\n", full_path);

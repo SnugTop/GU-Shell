@@ -1,0 +1,26 @@
+ctotal 328
+drwxr-xr-x@ 25 cjd  staff    800 Feb 19 11:46 .
+drwxr-xr-x   5 cjd  staff    160 Feb 19 11:35 ..
+-rw-r--r--@  1 cjd  staff    939 Feb 19 11:10 Makefile
+-rw-r--r--@  1 cjd  staff   1360 Feb 19 11:10 background.c
+-rw-r--r--@  1 cjd  staff    520 Feb 18 16:31 background.h
+-rw-r--r--@  1 cjd  staff   4440 Feb 19 11:35 background.o
+-rw-r--r--@  1 cjd  staff   3344 Feb 19 11:35 builtins.c
+-rw-r--r--@  1 cjd  staff    739 Feb 19 11:10 builtins.h
+-rw-r--r--@  1 cjd  staff   7264 Feb 19 11:35 builtins.o
+-rw-r--r--@  1 cjd  staff   4093 Feb 19 11:45 execute.c
+-rw-r--r--@  1 cjd  staff    418 Feb 19 11:35 execute.h
+-rw-r--r--@  1 cjd  staff   7520 Feb 19 11:45 execute.o
+-rwxr-xr-x@  1 cjd  staff  55272 Feb 19 11:45 gush
+-rw-r--r--@  1 cjd  staff   1308 Feb 19 11:35 gush.c
+-rw-r--r--@  1 cjd  staff   5008 Feb 19 11:35 gush.o
+-rw-r--r--@  1 cjd  staff      0 Feb 19 11:46 output.txt
+-rw-r--r--@  1 cjd  staff   3597 Feb 19 11:35 pipes.c
+-rw-r--r--@  1 cjd  staff    423 Feb 19 11:35 pipes.h
+-rw-r--r--@  1 cjd  staff   6544 Feb 19 11:35 pipes.o
+-rw-r--r--@  1 cjd  staff   2855 Feb 19 11:45 redirection.c
+-rw-r--r--@  1 cjd  staff    564 Feb 19 11:35 redirection.h
+-rw-r--r--@  1 cjd  staff   4192 Feb 19 11:45 redirection.o
+-rw-r--r--@  1 cjd  staff    425 Feb 19 11:35 utils.c
+-rw-r--r--@  1 cjd  staff    257 Feb 13 23:19 utils.h
+-rw-r--r--@  1 cjd  staff   2120 Feb 19 11:35 utils.o

@@ -93,6 +93,5 @@ int handle_redirection(char **args) {
         }
         close(fd_out);
     }
-    
     return 0;
 }
