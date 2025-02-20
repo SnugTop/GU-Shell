@@ -54,94 +54,111 @@ char *find_executable(char *cmd) {
  * external commands using execve(). Built-in commands are handled in the parent.
  */
 void execute_command(char *cmd) {
-    // If the command contains a pipe, handle it via the pipes module.
-    if (strchr(cmd, '|') != NULL) {
-        if (execute_piped_commands(cmd) < 0) {
-            print_error();
-        }
-        return;
-    }
-
-    // Handle history recall if command starts with '!'
+    // Step 1: Handle history recall BEFORE splitting commands
     if (cmd[0] == '!' && cmd[1] != '\0') {
-        int index = atoi(cmd + 1);  // Convert "!n" to integer index
+        int index = atoi(cmd + 1);
         if (index <= 0 || index > history_count) {
-            print_error();  // Invalid history index
+            print_error();
             return;
         }
-        strcpy(cmd, history[index - 1]);  // history is 0-based
-        printf("%s\n", cmd);  // Display the command being executed
+        strcpy(cmd, history[index - 1]);  // Replace cmd with history command
+        printf("%s\n", cmd);  // Print executed command
     }
 
-    // Add the command to the history.
+    // Step 2: Store the FULL command in history before modifying it
     add_to_history(cmd);
 
-    // Parse the command into arguments.
-    char *args[MAX_ARG_SIZE];
-    char *token = strtok(cmd, " \t\n");
-    if (token == NULL)
-        return;
+    char *commands[MAX_ARG_SIZE];  // Array to store commands split by '&'
+    int cmd_count = 0;
 
-    int i = 0;
-    while (token != NULL && i < MAX_ARG_SIZE - 1) {
-        args[i++] = token;
-        token = strtok(NULL, " \t\n");
+    // Step 3: Split command by '&' for background execution
+    char *token = strtok(cmd, "&");
+    while (token != NULL && cmd_count < MAX_ARG_SIZE - 1) {
+        commands[cmd_count++] = token;
+        token = strtok(NULL, "&");
     }
-    args[i] = NULL;
+    commands[cmd_count] = NULL;
 
-    // Check for built-in commands BEFORE forking.
-    if (strcmp(args[0], "exit") == 0) {
-        builtin_exit(args);
-        return;
-    }
-    if (strcmp(args[0], "cd") == 0) {
-        builtin_cd(args);
-        return;
-    }
-    if (strcmp(args[0], "pwd") == 0) {
-        builtin_pwd();
-        return;
-    }
-    if (strcmp(args[0], "history") == 0) {
-        builtin_history(args);
-        return;
-    }
-    if (strcmp(args[0], "kill") == 0) {
-        builtin_kill(args);
-        return;
-    }
-    if (strcmp(args[0], "path") == 0) {
-        builtin_path(args);
-        return;
-    }
-    if (strcmp(args[0], "clear") == 0) {
-        builtin_clear();
-        return;
-    }
+    // Step 4: Process each split command separately
+    for (int j = 0; j < cmd_count; j++) {
+        char *single_cmd = commands[j];
+        while (*single_cmd == ' ') single_cmd++;  // Trim leading spaces
 
-    // Locate the executable for the command.
-    char *full_path = find_executable(args[0]);
-    if (full_path == NULL) {
-        print_error();
-        return;
-    }
-
-    // Fork a new process to execute the command.
-    pid_t pid = fork();
-    if (pid < 0) {
-        print_error();
-    } else if (pid == 0) {
-        // In the child process, handle redirection.
-        if (handle_redirection(args) < 0) {
-            exit(1);
+        // Step 5: Parse the command into arguments.
+        char *args[MAX_ARG_SIZE];
+        int i = 0;
+        token = strtok(single_cmd, " \t\n");
+        while (token != NULL && i < MAX_ARG_SIZE - 1) {
+            args[i++] = token;
+            token = strtok(NULL, " \t\n");
         }
-        // Execute the external command.
-        execve(full_path, args, NULL);
-        print_error();
-        exit(1);
-    } else {
-        // In the parent process, wait for the child process to complete.
-        waitpid(pid, NULL, 0);
+        args[i] = NULL;
+
+        if (args[0] == NULL) continue;  // Skip empty commands
+
+        // Step 6: Determine if this command should be backgrounded
+        int background = (j != cmd_count - 1); // Background if not last command
+
+        // Step 7: Check for built-in commands
+        if (strcmp(args[0], "exit") == 0) {
+            builtin_exit(args);
+            return;
+        }
+        if (strcmp(args[0], "cd") == 0) {
+            builtin_cd(args);
+            return;
+        }
+        if (strcmp(args[0], "pwd") == 0) {
+            builtin_pwd();
+            return;
+        }
+        if (strcmp(args[0], "history") == 0) {
+            builtin_history(args);
+            return;
+        }
+        if (strcmp(args[0], "kill") == 0) {
+            builtin_kill(args);
+            return;
+        }
+        if (strcmp(args[0], "path") == 0) {
+            builtin_path(args);
+            return;
+        }
+        if (strcmp(args[0], "clear") == 0) {
+            builtin_clear();
+            return;
+        }
+
+        // Step 8: Locate the executable for the command.
+        char *full_path = find_executable(args[0]);
+        if (full_path == NULL) {
+            print_error();
+            return;
+        }
+
+        // Step 9: Fork a new process to execute the command.
+        pid_t pid = fork();
+        if (pid < 0) {
+            print_error();
+        } else if (pid == 0) {
+            // In the child process, handle redirection.
+            if (handle_redirection(args) < 0) {
+                exit(1);
+            }
+            // Execute the external command.
+            execve(full_path, args, NULL);
+            print_error();
+            exit(1);
+        } else {
+            if (!background) {
+                // Parent waits only if not a background process
+                waitpid(pid, NULL, 0);
+            } else {
+                // Background process: Print the PID
+                printf("[Background PID: %d] %s\n", pid, args[0]);
+            }
+        }
+        printf("Executing command: %s\n", full_path);
     }
-    printf("Executing command: %s\n", full_path);
 }
+
