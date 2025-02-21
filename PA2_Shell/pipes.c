@@ -1,4 +1,3 @@
-//This file is for pipe implementation
 /*
  * pipes.c
  *
@@ -13,6 +12,7 @@
 #include "pipes.h"
 #include "utils.h"
 #include "execute.h"  // For MAX_ARG_SIZE and find_executable()
+#include "redirection.h"  // For handle_redirection()
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -62,16 +62,15 @@ int execute_piped_commands(char *cmd_line) {
         if (pid < 0) {
             print_error();
             return -1;
-        }
-        else if (pid == 0) {  // Child process
-            // If not the first command, redirect stdin to previous pipe read end
+        } else if (pid == 0) {  // Child process
+            // If not the first command, redirect stdin to previous pipe's read end
             if (i != 0) {
                 if (dup2(pipefds[(i - 1) * 2], STDIN_FILENO) < 0) {
                     print_error();
                     exit(1);
                 }
             }
-            // If not the last command, redirect stdout to current pipe write end
+            // If not the last command, redirect stdout to current pipe's write end
             if (i != num_cmds - 1) {
                 if (dup2(pipefds[i * 2 + 1], STDOUT_FILENO) < 0) {
                     print_error();
@@ -92,25 +91,33 @@ int execute_piped_commands(char *cmd_line) {
             }
             args[k] = NULL;
             
-            // Locate the executable for the command
+            // Handle any redirection in the sub-command.
+            // This call will scan args for '<' or '>' and set up redirection,
+            // removing the redirection tokens from args.
+            if (handle_redirection(args) < 0) {
+                print_error();
+                exit(1);
+            }
+            
+            // Locate the executable for the command.
             char *full_path = find_executable(args[0]);
             if (full_path == NULL) {
                 print_error();
                 exit(1);
             }
-            // Execute the command
+            // Execute the command.
             execve(full_path, args, NULL);
             print_error();
             exit(1);
         }
     }
     
-    // Close all pipe file descriptors in the parent
+    // Close all pipe file descriptors in the parent process.
     for (int i = 0; i < 2 * (num_cmds - 1); i++) {
         close(pipefds[i]);
     }
     
-    // Wait for all child processes to finish
+    // Wait for all child processes to finish.
     for (int i = 0; i < num_cmds; i++) {
         wait(&status);
     }
