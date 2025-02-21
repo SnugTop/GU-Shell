@@ -6,6 +6,7 @@
  * such as printing error messages.
  */
 
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -18,4 +19,26 @@
  */
 void print_error() {
     write(STDERR_FILENO, ERROR_MSG, strlen(ERROR_MSG));
+}
+
+/*
+ * trim - Removes leading and trailing whitespace from a string.
+ * Returns a pointer to the trimmed string.
+ */
+char *trim(char *str) {
+    if (str == NULL) return str;
+    // Trim leading whitespace
+    while (*str && isspace((unsigned char)*str)) {
+        str++;
+    }
+    if (*str == '\0') { // All spaces
+        return str;
+    }
+    // Trim trailing whitespace
+    char *end = str + strlen(str) - 1;
+    while (end > str && isspace((unsigned char)*end)) {
+        *end = '\0';
+        end--;
+    }
+    return str;
 }
