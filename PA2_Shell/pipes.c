@@ -6,7 +6,7 @@
  * creates pipes to connect the stdout of one command to the stdin of the next, and
  * forks processes to execute each command.
  *
- * Up to 4 pipes (i.e. 5 commands) are supported.
+ * Up to 4 pipes are supported.
  */
 
 #include "pipes.h"

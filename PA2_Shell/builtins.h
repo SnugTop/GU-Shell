@@ -1,16 +1,5 @@
-//Header file for built-in commands builtins.h
-/*
- * builtins.h - Header file for built-in commands
- *
- * This file declares functions for built-in commands such as:
- * - exit
- * - cd
- * - pwd
- * - history
- * - kill
- * - path
- * - clear
- */
+//builtins.h - Header file for shell built-in commands.
+
 
 #ifndef BUILTINS_H
 #define BUILTINS_H

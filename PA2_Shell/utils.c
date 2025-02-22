@@ -24,6 +24,7 @@ void print_error() {
 /*
  * trim - Removes leading and trailing whitespace from a string.
  * Returns a pointer to the trimmed string.
+ * Used this to fix the issues with background processes.
  */
 char *trim(char *str) {
     if (str == NULL) return str;
