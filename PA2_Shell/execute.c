@@ -11,6 +11,8 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <ctype.h>  // for isspace()
+#include "background.h"  // Ensure background functions are declared
 #include "builtins.h"
 #include "utils.h"
 #include "redirection.h"
@@ -33,7 +35,7 @@ char *find_executable(char *cmd) {
         return cmd;
     }
 
-    // If path is empty, return NULL (no external commands should execute)
+    // If path is empty, return NULL 
     if (search_paths[0] == NULL) {
         return NULL;
     }
@@ -55,9 +57,6 @@ char *find_executable(char *cmd) {
  * and then forks. In the child process, it processes redirection and executes
  * external commands using execve(). Built-in commands are handled in the parent.
  */
-#include <ctype.h>  // for isspace()
-#include "background.h"  // Ensure background functions are declared
-
 void execute_command(char *cmd) {
     // Check for pipes first.
     if (strchr(cmd, '|') != NULL) {
@@ -124,7 +123,6 @@ if (strchr(cmd, '&') != NULL) {
         sub_cmd = strtok_r(NULL, "&", &saveptr);
     }
     free(cmd_dup);
-    // Optionally, check background processes.
     check_background_processes();
     return;
 }

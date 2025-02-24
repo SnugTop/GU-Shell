@@ -13,11 +13,8 @@ typedef struct BackgroundProcess {
 } BackgroundProcess;
 
 // Function declarations for background process management:
-// - add_background_process: Adds a new process to the background process list.
-// - check_background_processes: Checks for and reaps terminated background processes.
-// - cleanup_background_process: Removes a specific process from the background process list.
 void add_background_process(pid_t pid);
 void check_background_processes();
 void cleanup_background_process(pid_t pid);
 
-#endif // BACKGROUND_H
+#endif 

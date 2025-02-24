@@ -1,7 +1,7 @@
 /*
  * builtins.c - Implementation of shell built-in commands.
  *
- * This file implements the built-in commands for the shell (gush), including:
+ * This file implements the built-in commands for the shell, including:
  *   - exit: Terminates the shell.
  *   - cd: Changes the current working directory.
  *   - pwd: Prints the current working directory.
@@ -10,9 +10,8 @@
  *   - path: Updates the shell's search path for locating external executables.
  *   - clear: Clears the terminal screen.
  *
- * Additionally, it manages a command history buffer (with a maximum of MAX_HISTORY entries)
- * and provides the function add_to_history() to add new commands to the history.
- *
+ * Additionally, it manages a command history buffer and provides the function 
+ * add_to_history() to add new commands to the history.
  * All built-in commands include error checking and, upon encountering an error,
  * print a standard error message using print_error().
  */
@@ -56,7 +55,7 @@ void builtin_clear(){
 /*
  * builtin_cd - Changes the current working directory.
  *
- * Accepts exactly one argument (the target directory).
+ * Accepts exactly one argument which is the target directory.
  * If no argument or more than one argument is provided, an error is printed.
  * Uses the chdir() system call to change directories.
  */
@@ -88,7 +87,7 @@ void builtin_pwd() {
 /*
  * builtin_history - Displays the command history.
  *
- * Prints the last MAX_HISTORY commands stored in the history buffer.
+ * Prints the last 10 commands stored in the history buffer.
  * If any extra arguments are provided, an error is printed.
  */
 void builtin_history(char **args) {
@@ -125,7 +124,7 @@ void add_to_history(char *cmd) {
         snprintf(history[history_count], sizeof(history[history_count]), "%s\n", cmd);
         history_count++;
     } else {
-        // Shift history up (FIFO) when maximum size is reached
+        // Shift history up when maximum size is reached
         for (int i = 1; i < MAX_HISTORY; i++) {
             strcpy(history[i - 1], history[i]);
         }
@@ -142,11 +141,11 @@ void add_to_history(char *cmd) {
  */
 void builtin_kill(char **args) {
     if (args[1] == NULL || args[2] != NULL) {
-        print_error(); // Error: kill requires exactly one argument (PID)
+        print_error(); // Error: kill requires exactly one argument =
         return;
     }
 
-    // Convert argument to an integer (PID)
+    // Convert argument to an integer 
     char *endptr;
     int pid = strtol(args[1], &endptr, 10);
 

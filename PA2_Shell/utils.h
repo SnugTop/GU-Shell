@@ -10,6 +10,6 @@
 
 // Function to print a standard error message
 void print_error();
-char *trim(char *str);  // Add this line
+char *trim(char *str);  
 
 #endif

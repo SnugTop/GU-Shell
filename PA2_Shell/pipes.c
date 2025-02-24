@@ -11,8 +11,8 @@
 
 #include "pipes.h"
 #include "utils.h"
-#include "execute.h"  // For MAX_ARG_SIZE and find_executable()
-#include "redirection.h"  // For handle_redirection()
+#include "execute.h"  
+#include "redirection.h" 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

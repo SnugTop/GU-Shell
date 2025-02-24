@@ -8,7 +8,7 @@
 
 #include "execute.h"  // Needed for MAX_PATHS and search_paths
 
-extern char history[MAX_HISTORY][1024];  // Store command history
+extern char history[MAX_HISTORY][1024]; 
 extern int history_count;
 
 // Function prototypes for built-in commands

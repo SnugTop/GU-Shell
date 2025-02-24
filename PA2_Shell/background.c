@@ -12,7 +12,6 @@
 static BackgroundProcess *head = NULL; // Head pointer for the linked list of background processes
 
 // add_background_process - Adds a new process to the background process list.
-// @param pid: Process ID of the newly created background process.
 void add_background_process(pid_t pid) {
     BackgroundProcess *new_process = (BackgroundProcess *)malloc(sizeof(BackgroundProcess));
     if (!new_process) {
@@ -40,7 +39,6 @@ void check_background_processes() {
 }
 
 // cleanup_background_process - Removes a background process from the linked list.
-// @param pid: Process ID of the background process to be removed.
 // It traverses the list, finds the process with the given PID, removes it,
 // and frees the allocated memory.
 void cleanup_background_process(pid_t pid) {

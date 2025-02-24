@@ -24,7 +24,7 @@ void interactive_mode() {
         fflush(stdout);
         
         if (fgets(input, MAX_INPUT_SIZE, stdin) == NULL) {
-            exit(0); // Exit on EOF (Ctrl+D)
+            exit(0);
         }
 
         execute_command(input);
@@ -60,9 +60,9 @@ int main(int argc, char *argv[]) {
     }
 
     if (argc == 2) {
-        batch_mode(argv[1]); // Run batch mode
+        batch_mode(argv[1]); 
     } else {
-        interactive_mode(); // Run interactive mode
+        interactive_mode(); 
     }
 
     return 0;
