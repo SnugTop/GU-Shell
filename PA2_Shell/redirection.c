@@ -1,6 +1,6 @@
 //This file will be for input and output redirection
 /*
- * redirection.c
+ * redirection.c -->Created by Cameron Daly & Jed Henry
  *
  * Implements input/output redirection for the shell.
  * It scans the passed-in arguments for the symbols '<' and '>',

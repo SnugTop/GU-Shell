@@ -1,5 +1,5 @@
 /*
- * pipes.c
+ * pipes.c -->Created by Cameron Daly & Jed Henry
  *
  * Implements the piping feature for the shell. The execute_piped_commands()
  * function splits a command line (containing the '|' operator) into separate commands,

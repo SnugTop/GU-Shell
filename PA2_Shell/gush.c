@@ -1,4 +1,4 @@
-//gush.c
+//gush.c-->Created by Cameron Daly & Jed Henry
 /*
  * gush.c - Main shell logic (Final Edition)
  * Handles interactive mode (with prompt) and batch mode (reading from a file).

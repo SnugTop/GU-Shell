@@ -1,4 +1,5 @@
-// background.c
+// background.c-->Created by Cameron Daly & Jed Henry
+
 // This file implements background process management for the shell.
 // It maintains a linked list of background processes and provides functions
 // to add new background processes, check for terminated processes, and clean them up.

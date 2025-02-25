@@ -1,6 +1,6 @@
 //utils.c
 /*
- * utils.c - Utility functions
+ * utils.c - Utility functions -->Created by Cameron Daly & Jed Henry
  * 
  * This file contains helper functions used throughout the shell,
  * such as printing error messages.
